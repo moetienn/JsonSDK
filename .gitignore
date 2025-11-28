@@ -1,0 +1,18 @@
+# Build results
+bin/
+obj/
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+# VS Code
+.vscode/
+# Test results
+TestResults/
+# NuGet packages
+*.nupkg
+# Others
+*.log
+*.DS_Store
+*.vs/
