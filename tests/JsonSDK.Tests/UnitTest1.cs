@@ -21,12 +21,6 @@ public class MinifyJsonTests
     }
 
     [Fact]
-    public void Minify_Should_Throw_On_Null_Input()
-    {
-        Assert.Throws<ArgumentNullException>(() => JsonSDK.MinifyJson(null!, validate: true));
-    }
-
-    [Fact]
     public void Minify_Should_Handle_Escaped_Quotes()
     {
         var input = "{ \"text\" : \"He said \\\"hello\\\"\" }";
@@ -36,17 +30,26 @@ public class MinifyJsonTests
     }
 
     [Fact]
+    public void Minify_Should_Throw_On_Null_Input()
+    {
+        var ex = Assert.Throws<ArgumentNullException>(() => JsonSDK.MinifyJson(null!, validate: true));
+        Console.WriteLine($"Exception message: {ex.Message}");
+    }
+
+    [Fact]
     public void ValidatorJson_Should_NotThrow_For_Valid_Json()
     {
         var input = "{\"name\":\"Bernard\",\"age\":24}";
-        Exception ex = Record.Exception(() => Validator.ValidatorJson(input));
+        Exception ex = Record.Exception(() => Validator.Validate(input));
         Assert.Null(ex);
     }
     
     [Fact]
-    public void ValidatorJson_Should_Throw_For_Invalid_Json()
+    public void ValidatorJson_Should_Return_False_For_Invalid_Json()
     {
         var input = "{name:\"Bernard\",age:24}";
-        Assert.Throws<ArgumentException>(() => Validator.ValidatorJson(input));
+        var result = Validator.Validate(input);
+        Console.WriteLine(result.ErrorMessage);
+        Assert.False(result.IsValid);
     }
 }

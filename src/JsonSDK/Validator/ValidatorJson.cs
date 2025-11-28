@@ -1,39 +1,44 @@
+using System.Text.Json;
 namespace JsonSDK;
 
 public static class Validator
 {
 	/// <summary>
-	/// Ensures the provided JSON string is not null and is valid JSON.
-	/// Throws an exception if the input is invalid.
+	/// Validates whether the provided string is a syntactically correct JSON value.
+	/// Parses the input JSON and returns a <see cref="JsonValidationResult"/> indicating validity and error details if invalid.
 	/// </summary>
-	/// <param name="json">The JSON string to check.</param>
-	/// <exception cref="ArgumentNullException">Thrown if <paramref name="json"/> is null.</exception>
-	/// <exception cref="ArgumentException">Thrown if <paramref name="json"/> is not valid JSON.</exception>
-	public static void ValidatorJson(string json)
+	/// <param name="json">The JSON string to validate.</param>
+	/// <returns>
+	/// A <see cref="JsonValidationResult"/> object containing:
+	/// <list type="bullet">
+	/// <item><description><c>IsValid</c>: <c>true</c> if the JSON is valid, <c>false</c> otherwise.</description></item>
+	/// <item><description><c>ErrorMessage</c>: The error message if invalid, otherwise <c>null</c>.</description></item>
+	/// <item><description><c>Line</c>: The line number of the error if invalid, otherwise <c>null</c>.</description></item>
+	/// <item><description><c>Column</c>: The column (byte position) of the error if invalid, otherwise <c>null</c>.</description></item>
+	/// <item><description><c>Exception</c>: The <see cref="JsonException"/> thrown if invalid, otherwise <c>null</c>.</description></item>
+	/// </list>
+	/// </returns>
+	/// <exception cref="ArgumentNullException">Thrown if <paramref name="json"/> is <c>null</c>.</exception>
+	public static JsonValidationResult Validate(string json)
 	{
 		if (json is null)
 			throw new ArgumentNullException(nameof(json));
-		if (!IsValidJson(json))
-			throw new ArgumentException("Invalid JSON format", nameof(json));
-	}
 
-	/// <summary>
-	/// Validates whether the provided string is a syntactically correct JSON value.
-	/// </summary>
-	/// <param name="json">The JSON string to validate.</param>
-	/// <returns>True if the string is valid JSON, otherwise false.</returns>
-	private static bool IsValidJson(string json)
-	{
-		if (json is null)
-			return false;
 		try
 		{
-			System.Text.Json.JsonDocument.Parse(json);
-			return true;
+			using var doc = JsonDocument.Parse(json);
+			return JsonValidationResult.Success();
 		}
-		catch
+		catch (JsonException ex)
 		{
-			return false;
+			return new JsonValidationResult
+			{
+				IsValid = false,
+				ErrorMessage = ex.Message,
+				Line = ex.LineNumber,
+				Column = ex.BytePositionInLine >= 0 ? (long?)(ex.BytePositionInLine + 1) : null,
+				Exception = ex
+			};
 		}
 	}
 }
