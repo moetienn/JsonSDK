@@ -16,7 +16,7 @@ public static class Minify
 	public static string MinifyJson(string json, bool validate)
 	{
         if (validate)
-            Validator.ValidatorJson(json);
+            Validator.Validate(json);
 
 		var result = new System.Text.StringBuilder(json.Length);
 		bool insideString = false;
